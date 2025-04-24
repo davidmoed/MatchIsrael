@@ -1,0 +1,31 @@
+name: Deploy React to SiteGround
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: MI_prod
+    env:
+      BUILD_DIR: './build'
+      SITE_DIR: 'public_html'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build React app
+      run: npm run build
+      env:
+        REACT_APP_ASSISTANT_ID: ${{ secrets.REACT_APP_ASSISTANT_ID }}  # From MI_prod
+        REACT_APP_OAI_KEY: ${{ secrets.REACT_APP_OAI_KEY }} 
