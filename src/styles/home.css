@@ -1,0 +1,91 @@
+.hero {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 5%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(230, 230, 255, 1) 50%,
+    rgba(240, 240, 255, 1) 100%
+  );
+}
+
+.hero-content {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  line-height: 1.2;
+}
+
+.highlight-text {
+  color: #7b68ee;
+}
+
+.highlight-text-secondary {
+  color: #4169e1;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 25px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.hero-btn-primary {
+  background-color: #7b68ee;
+  color: white;
+}
+
+.hero-btn-secondary {
+  background-color: transparent;
+  border: 2px solid #7b68ee;
+  color: #7b68ee;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+}
+
+/* Card List Styles */
+.np-card-list {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  height: 500px;
+  margin: 0 auto;
+  padding: 1rem;
+  margin-bottom: 4rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}

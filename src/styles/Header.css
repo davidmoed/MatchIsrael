@@ -1,0 +1,38 @@
+.header {
+  background-color: #6366f1;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-end;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}

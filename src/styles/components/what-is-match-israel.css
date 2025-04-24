@@ -1,0 +1,72 @@
+.what-is-match-israel {
+  width: 100%;
+  padding: 4rem 5%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(230, 230, 255, 1) 50%,
+    rgba(240, 240, 255, 1) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.icon-wrapper {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.feature-icon {
+  font-size: 2rem;
+  color: #7b68ee;
+}
+
+.feature-item h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+}
+
+.feature-item p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+/* ... rest of the styles remain the same ... */

@@ -1,0 +1,84 @@
+import React, { useState, useEffect } from "react";
+import NpCard from "./npCard";
+import { fetchNonprofitData } from "../utils/nonprofitData";
+import Accordion from "../utils/Accordion";
+import "../styles/components/npCard.css";
+
+const NpCardList = () => {
+  const faqData = [
+    {
+      title: "How are non-profits vetted?",
+      content:
+        "Each of our featured non-profits undergoes a rigorous vetting process to ensure they are making a meaningful impact and using donations efficiently. We evaluate their financial transparency, leadership, program effectiveness, and community engagement.",
+    },
+    {
+      title: "Can I contact organizations directly?",
+      content:
+        "Yes! Each organization has a designated representative waiting to talk with you. You can schedule a short Zoom call to learn more about their work before deciding to donate.",
+    },
+  ];
+
+  const [displayedNonprofits, setDisplayedNonprofits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const getRandomItems = (array, count) => {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  useEffect(() => {
+    fetchNonprofitData()
+      .then((nonprofitsData) => {
+        setDisplayedNonprofits(getRandomItems(nonprofitsData, 8));
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const renderAllNonprofitCards = () => {
+    if (loading) {
+      return <div>Loading nonprofits...</div>;
+    }
+
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+
+    return (
+      <div className="np-card-list">
+        {displayedNonprofits.map((nonprofit) => (
+          <NpCard
+            key={nonprofit.id}
+            nonprofit={{
+              ...nonprofit,
+              name: nonprofit.nonprofit_name,
+              imageUrl: nonprofit.logo,
+              tags: [], // You might want to add tags based on some criteria
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="np-card-list-cont">
+      <h1>Featured Nonprofits</h1>
+      {renderAllNonprofitCards()}
+      <h2 className="np-card-list-faq-header">FAQ</h2>
+      <div className="np-accordion">
+        {faqData.map((faq, index) => (
+          <Accordion
+            key={index}
+            title={faq.title}
+            content={faq.content}
+            listIdx={index}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default NpCardList;
