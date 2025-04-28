@@ -1,5 +1,4 @@
 .header {
-  background-color: #6366f1;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -7,27 +6,37 @@
   left: 0;
   right: 0;
   z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
   display: flex;
   gap: 2rem;
-  justify-content: flex-end;
+}
+
+.nav-logo-cont {
+  justify-self: flex-start;
+}
+
+.nav-logo {
+  height: 60px;
 }
 
 .nav-link {
-  color: white;
+  color: #6366f1;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: all 0.2s;
 }
 
 .nav-link:hover {
-  color: white;
+  color: #8a8bf5;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
