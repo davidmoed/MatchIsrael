@@ -9,22 +9,14 @@ const NpCard = ({ nonprofit }) => {
   const truncateText = (text, maxLength) => {
     if (text.length <= maxLength) return text;
 
-    const nextSpace = text.indexOf(" ", maxLength);
-    const lastSpace = text.lastIndexOf(" ", maxLength);
-
-    const truncateIndex =
-      nextSpace === -1
-        ? lastSpace
-        : nextSpace - maxLength < maxLength - lastSpace
-        ? nextSpace
-        : lastSpace;
-
-    return truncateIndex === -1
-      ? text.slice(0, maxLength)
-      : text.slice(0, truncateIndex) + "... ";
+    let truncated = text.slice(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(" ");
+    if (lastSpace > 0) {
+      truncated = truncated.slice(0, lastSpace) + "...";
+    }
+    return truncated;
   };
 
-  const shouldTruncate = description.length > 180;
   const truncatedDescription = truncateText(description, 180);
 
   return (
@@ -36,17 +28,7 @@ const NpCard = ({ nonprofit }) => {
         <div className="np-card-content">
           <h3 className="np-card-title">{name}</h3>
           <div className="np-card-description-container">
-            <p className="np-card-description">
-              {truncatedDescription}
-              {shouldTruncate && (
-                <span
-                  className="read-more-link"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Read more
-                </span>
-              )}
-            </p>
+            <p className="np-card-description">{truncatedDescription}</p>
           </div>
           <div className="np-card-tags">
             {tags?.map((tag, index) => (
