@@ -1,10 +1,11 @@
 .cause-quiz {
   width: 100%;
-  padding: 4rem 5%;
+  padding: 4rem 0;
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .quiz-title {
@@ -23,6 +24,7 @@
 .quiz-container {
   max-width: 1200px;
   width: 100%;
+  padding: 0 24px;
   display: flex;
   flex-direction: column;
 }
