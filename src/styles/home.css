@@ -89,3 +89,14 @@
   overflow-x: auto;
   scroll-behavior: smooth;
 }
+
+.np-faq-section {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.np-faq {
+  padding: 0 24px;
+}

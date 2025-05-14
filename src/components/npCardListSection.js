@@ -1,23 +1,9 @@
 import React, { useState, useEffect } from "react";
 import NpCard from "./npCard";
 import { fetchNonprofitData } from "../utils/nonprofitData";
-import Accordion from "../utils/Accordion";
 import "../styles/components/npCard.css";
 
 const NpCardList = () => {
-  const faqData = [
-    {
-      title: "How are non-profits vetted?",
-      content:
-        "Each of our featured non-profits undergoes a rigorous vetting process to ensure they are making a meaningful impact and using donations efficiently. We evaluate their financial transparency, leadership, program effectiveness, and community engagement.",
-    },
-    {
-      title: "Can I contact organizations directly?",
-      content:
-        "Yes! Each organization has a designated representative waiting to talk with you. You can schedule a short Zoom call to learn more about their work before deciding to donate.",
-    },
-  ];
-
   const [displayedNonprofits, setDisplayedNonprofits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,16 +52,24 @@ const NpCardList = () => {
     <div className="np-card-list-cont">
       <h1>Featured Nonprofits</h1>
       {renderAllNonprofitCards()}
-      <h2 className="np-card-list-faq-header">FAQ</h2>
-      <div className="np-accordion">
-        {faqData.map((faq, index) => (
-          <Accordion
-            key={index}
-            title={faq.title}
-            content={faq.content}
-            listIdx={index}
-          />
-        ))}
+      <div className="np-faq-section">
+        <div className="np-faq">
+          <h3>How are non-profits vetted?</h3>
+          <p>
+            Each of our featured non-profits undergoes a rigorous vetting
+            process to ensure they are making a meaningful impact and using
+            donations efficiently. We evaluate their financial transparency,
+            leadership, program effectiveness, and community engagement.
+          </p>
+        </div>
+        <div className="np-faq">
+          <h3>Can I contact organizations directly?</h3>
+          <p>
+            Yes! Each organization has a designated representative waiting to
+            talk with you. You can schedule a short Zoom call to learn more
+            about their work before deciding to donate.
+          </p>
+        </div>
       </div>
     </div>
   );
