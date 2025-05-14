@@ -16,7 +16,13 @@ const NPModal = ({ nonprofit, onClose, isOpen }) => {
     donation_link,
     homepage_english,
     preferred_contact_method,
+    whatsapp_text,
+    email_subject,
+    email_text,
   } = nonprofit;
+
+  const formattedPhone = phone.replace(/[+\-\s()]/g, "").replace(/^0/, "972");
+  const formattedWhatsappText = encodeURIComponent(whatsapp_text);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -55,14 +61,26 @@ const NPModal = ({ nonprofit, onClose, isOpen }) => {
               {email && (
                 <p>
                   <strong>Email: </strong>
-                  <a href={`mailto:${email}`}>{email}</a>
+                  <a
+                    href={`mailto:${email}?subject=${email_subject}&body=${email_text}`}
+                  >
+                    {email}
+                  </a>
                 </p>
               )}
-              {phone && (
+              {preferred_contact_method.toLowerCase() !== "email" && phone ? (
                 <p>
-                  <strong>Phone: </strong>
-                  <a href={`tel:${phone}`}>{phone}</a>
+                  <strong>WhatsApp: </strong>
+                  <a
+                    href={`https://wa.me/${formattedPhone}?text=${formattedWhatsappText}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {phone}
+                  </a>
                 </p>
+              ) : (
+                <></>
               )}
             </div>
 
@@ -70,12 +88,6 @@ const NPModal = ({ nonprofit, onClose, isOpen }) => {
               <p>
                 <strong>{contact_role || "Contact"}: </strong>
                 {contact_name}
-              </p>
-            )}
-            {preferred_contact_method && (
-              <p>
-                <strong>Preferred Contact Method: </strong>
-                {preferred_contact_method}
               </p>
             )}
           </div>

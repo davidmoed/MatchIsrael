@@ -32,6 +32,9 @@ export const fetchNonprofitData = async () => {
         homepage_english: columns[16] || "",
         description: columns[17] || "",
         preferred_contact_method: columns[20] || "",
+        whatsapp_text: columns[22] || "",
+        email_subject: columns[23] || "",
+        email_text: columns[24] || "",
       });
     }
 
