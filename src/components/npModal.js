@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getGalleryImages } from "../utils/nonprofitData";
 import "../styles/components/npModal.css";
 
 const NPModal = ({ nonprofit, onClose, isOpen }) => {
+  const [galleryImages, setGalleryImages] = useState([]);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      if (isOpen && nonprofit?.nonprofit_name) {
+        const images = await getGalleryImages(
+          nonprofit.nonprofit_name.replace(/ /g, "_")
+        );
+        setGalleryImages(images);
+      }
+    };
+
+    fetchGalleryImages();
+  }, [isOpen, nonprofit?.nonprofit_name]);
+
   if (!isOpen) return null;
 
   const {
@@ -12,7 +28,6 @@ const NPModal = ({ nonprofit, onClose, isOpen }) => {
     phone,
     email,
     logo,
-    additional_images,
     donation_link,
     homepage_english,
     preferred_contact_method,
@@ -42,9 +57,9 @@ const NPModal = ({ nonprofit, onClose, isOpen }) => {
             <p>{description}</p>
           </div>
 
-          {additional_images?.length > 0 && (
+          {galleryImages.length > 0 && (
             <div className="modal-gallery">
-              {additional_images.map((image, index) => (
+              {galleryImages.map((image, index) => (
                 <img
                   key={index}
                   src={image}

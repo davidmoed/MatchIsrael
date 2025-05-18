@@ -4,7 +4,7 @@ import NPModal from "./npModal";
 
 const NpCard = ({ nonprofit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { logo: imageUrl, nonprofit_name: name, description, tags } = nonprofit;
+  const { nonprofit_name: name, description, tags, logo } = nonprofit;
 
   const truncateText = (text, maxLength) => {
     if (text.length <= maxLength) return text;
@@ -23,7 +23,7 @@ const NpCard = ({ nonprofit }) => {
     <>
       <div className="np-card">
         <div className="np-card-image">
-          <img src={imageUrl} alt={name} />
+          <img src={logo} alt={name} />
         </div>
         <div className="np-card-content">
           <h3 className="np-card-title">{name}</h3>
