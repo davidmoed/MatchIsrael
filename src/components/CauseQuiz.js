@@ -93,9 +93,7 @@ const CauseQuiz = () => {
 
   return (
     <section className="cause-quiz">
-      <h2 className="quiz-title">
-        Find Your Perfect Cause <span className="quiz-subtitle">(quiz)</span>
-      </h2>
+      <h2 className="quiz-title">Find Your Perfect Cause</h2>
       <div className="quiz-container">
         <div className="chat-container" ref={chatContainerRef}>
           {messages.map((message, index) => (
