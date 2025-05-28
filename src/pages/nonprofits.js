@@ -20,16 +20,20 @@ const FeaturedNPs = () => {
 
     return (
       <div className="np-card-list">
-        {nonprofits.map((nonprofit) => (
-          <NpCard
+        {nonprofits.map((nonprofit, index) => (
+          <div
             key={nonprofit.id}
-            nonprofit={{
-              ...nonprofit,
-              name: nonprofit.nonprofit_name,
-              imageUrl: nonprofit.logo,
-              tags: [], // You might want to add tags based on some criteria
-            }}
-          />
+            style={{ animationDelay: `${0.1 + index * 0.05}s` }}
+          >
+            <NpCard
+              nonprofit={{
+                ...nonprofit,
+                name: nonprofit.nonprofit_name,
+                imageUrl: nonprofit.logo,
+                tags: [], // You might want to add tags based on some criteria
+              }}
+            />
+          </div>
         ))}
       </div>
     );

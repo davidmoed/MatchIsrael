@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import "../styles/components/CauseQuiz.css";
+import "../styles/components/causeQuiz.css";
 import OpenAI from "openai";
 
 const openai = new OpenAI({

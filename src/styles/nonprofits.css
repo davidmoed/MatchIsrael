@@ -12,6 +12,7 @@
   color: #7b68ee;
 }
 
+/* Grid layout for nonprofits page */
 .nonprofits-page .np-card-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -23,6 +24,23 @@
   overflow: visible;
   flex-wrap: wrap;
   flex: 1;
+}
+
+.nonprofits-page .np-card-list > div {
+  opacity: 0;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .loading-state {
@@ -49,5 +67,10 @@
 @media (max-width: 600px) {
   .nonprofits-page .np-card-list {
     grid-template-columns: 1fr;
+  }
+
+  .loading-state {
+    align-items: flex-start;
+    padding-top: 2rem;
   }
 }

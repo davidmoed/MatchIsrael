@@ -68,34 +68,47 @@ export const fetchNonprofitData = async () => {
 
     const nonprofitsData = [];
 
-    for (const columns of records) {
-      const nonProfitObj = {
-        id: nonprofitsData.length + 1,
-        contact_name: columns[1] || "",
-        nonprofit_name: columns[4] || "",
-        contact_role: columns[5] || "",
-        phone: columns[6] || "",
-        email: columns[7] || "",
-        donation_link: columns[15] || "",
-        homepage_english: columns[16] || "",
-        description: columns[17] || "",
-        preferred_contact_method: columns[20] || "",
-        whatsapp_text: columns[22] || "",
-        email_subject: columns[23] || "",
-        email_text: columns[24] || "",
-      };
+    // Process nonprofits in batches
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < records.length; i += BATCH_SIZE) {
+      const batch = records.slice(i, i + BATCH_SIZE);
+      const batchPromises = batch.map(async (columns, batchIndex) => {
+        const nonProfitObj = {
+          id: i + batchIndex + 1,
+          contact_name: columns[1] || "",
+          nonprofit_name: columns[4] || "",
+          contact_role: columns[5] || "",
+          phone: columns[6] || "",
+          email: columns[7] || "",
+          donation_link: columns[15] || "",
+          homepage_english: columns[16] || "",
+          description: columns[17] || "",
+          preferred_contact_method: columns[20] || "",
+          whatsapp_text: columns[22] || "",
+          email_subject: columns[23] || "",
+          email_text: columns[24] || "",
+        };
 
-      // Get only logo images in the main flow
-      const logoImages = await getLogoImages(
-        nonProfitObj.nonprofit_name.replace(/ /g, "_")
-      );
-      nonProfitObj.logo = logoImages;
+        const logoImages = await getLogoImages(
+          nonProfitObj.nonprofit_name.replace(/ /g, "_")
+        );
+        nonProfitObj.logo = logoImages;
 
-      nonprofitsData.push(nonProfitObj);
+        return nonProfitObj;
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      nonprofitsData.push(...batchResults);
+
+      // If this isn't the last batch, add a small delay
+      if (i + BATCH_SIZE < records.length) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
     }
 
     return nonprofitsData;
   } catch (error) {
     console.error("Error fetching nonprofits:", error);
+    return [];
   }
 };
