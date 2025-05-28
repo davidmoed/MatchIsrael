@@ -1,5 +1,50 @@
 import { parse } from "csv-parse/browser/esm/sync";
 
+const CACHE_KEY = "nonprofit_data_cache";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+const isLocalStorageAvailable = () => {
+  try {
+    const test = "__storage_test__";
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const getCachedData = () => {
+  if (!isLocalStorageAvailable()) return null;
+
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    const isExpired = Date.now() - timestamp > CACHE_DURATION;
+
+    return isExpired ? null : data;
+  } catch (error) {
+    console.warn("Error accessing cache:", error);
+    return null;
+  }
+};
+
+const setCachedData = (data) => {
+  if (!isLocalStorageAvailable()) return;
+
+  try {
+    const cacheData = {
+      data,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+  } catch (error) {
+    console.warn("Error setting cache:", error);
+  }
+};
+
 // Function to fetch files with a specific prefix
 const fetchFiles = async (prefix, bucketName) => {
   const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucketName}/o`;
@@ -53,6 +98,12 @@ export async function getGalleryImages(
 }
 
 export const fetchNonprofitData = async () => {
+  // Try to get cached data first
+  const cachedData = getCachedData();
+  if (cachedData) {
+    return cachedData;
+  }
+
   const sheetUrl =
     "https://docs.google.com/spreadsheets/d/13cpTyNm2Dy15pPlsPRm6yKLopVTBMrsmlgvIW-U_x7Y/export?format=csv";
 
@@ -105,6 +156,9 @@ export const fetchNonprofitData = async () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
     }
+
+    // Cache the processed data
+    setCachedData(nonprofitsData);
 
     return nonprofitsData;
   } catch (error) {
