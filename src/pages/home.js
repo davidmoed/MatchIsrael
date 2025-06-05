@@ -6,6 +6,7 @@ import CauseQuiz from "../components/CauseQuiz";
 import WhatIsMatchIsrael from "../components/WhatIsMatchIsrael";
 import NpCardList from "../components/npCardListSection";
 import Connect from "../components/Connect";
+import Footer from "../components/Footer";
 
 const Home = () => {
   return (
@@ -31,6 +32,7 @@ const Home = () => {
       <WhatIsMatchIsrael />
       <NpCardList />
       <Connect />
+      <Footer />
     </>
   );
 };
