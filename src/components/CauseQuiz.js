@@ -3,14 +3,15 @@ import ReactMarkdown from "react-markdown";
 import "../styles/components/CauseQuiz.css";
 import OpenAI from "openai";
 
-// Configuration constants
-const POLLING_INTERVAL = 1000; // 1 second
-const MAX_RETRIES = 10;
-
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OAI_KEY,
   dangerouslyAllowBrowser: true,
 });
+
+const cleanResponse = (text) => {
+  // remove footnotes
+  return text.replace(/【[^】]*】/g, "");
+};
 
 const CauseQuiz = () => {
   const [messages, setMessages] = useState([
@@ -25,8 +26,8 @@ const CauseQuiz = () => {
   const [threadId, setThreadId] = useState(null);
   const [assistantId, setAssistantId] = useState(null);
   const chatContainerRef = useRef(null);
+  const currentMessageRef = useRef("");
 
-  // Initialize assistant and thread on component mount
   useEffect(() => {
     const initializeChat = async () => {
       try {
@@ -39,14 +40,15 @@ const CauseQuiz = () => {
         setThreadId(thread.id);
       } catch (err) {
         console.error("Failed to initialize chat:", err);
-        setMessages((prev) => [
-          ...prev,
-          {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          newMessages.push({
             role: "assistant",
             content:
               "I'm having trouble connecting right now. Please try refreshing the page.",
-          },
-        ]);
+          });
+          return newMessages;
+        });
       }
     };
 
@@ -61,6 +63,7 @@ const CauseQuiz = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+    currentMessageRef.current = "";
 
     try {
       // Add message to existing thread
@@ -72,61 +75,44 @@ const CauseQuiz = () => {
       // Run the assistant
       const run = await openai.beta.threads.runs.create(threadId, {
         assistant_id: assistantId,
+        stream: true,
       });
 
-      // Poll for completion
-      let runStatus = run.status;
-      let attempts = 0;
-
-      while (
-        (runStatus === "queued" || runStatus === "in_progress") &&
-        attempts < MAX_RETRIES
-      ) {
-        await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL));
-        const statusResponse = await openai.beta.threads.runs.retrieve(
-          threadId,
-          run.id
-        );
-        runStatus = statusResponse.status;
-        attempts++;
-
-        if (runStatus === "failed") {
-          throw new Error("Assistant run failed");
-        }
-      }
-
-      if (runStatus !== "completed") {
-        throw new Error("Assistant response timed out");
-      }
-
-      // Get the assistant's response
-      const messagesResponse = await openai.beta.threads.messages.list(
-        threadId
-      );
-      const latestMessage = messagesResponse.data[0];
-
-      if (!latestMessage?.content?.[0]?.text?.value) {
-        throw new Error("Invalid response format from assistant");
-      }
-
-      const assistantMessage = {
-        role: "assistant",
-        content: latestMessage.content[0].text.value,
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error:", error);
+      // Create a temporary message for streaming
       setMessages((prev) => [
         ...prev,
-        {
+        { role: "assistant", content: "Checking..." },
+      ]);
+
+      // Handle the stream
+      for await (const chunk of run) {
+        if (chunk.event === "thread.message.delta") {
+          const content = chunk.data.delta.content?.[0]?.text?.value || "";
+          if (content) {
+            currentMessageRef.current += content;
+            setMessages((prev) => {
+              const newMessages = [...prev];
+              const lastMessage = newMessages[newMessages.length - 1];
+              lastMessage.content = cleanResponse(currentMessageRef.current);
+              return newMessages;
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        newMessages.push({
           role: "assistant",
           content:
             "I encountered an error while processing your request. Please try again or rephrase your question.",
-        },
-      ]);
+        });
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
+      currentMessageRef.current = "";
     }
   };
 
@@ -150,12 +136,6 @@ const CauseQuiz = () => {
               <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
           ))}
-          {isLoading && (
-            <div className="message assistant">
-              <div className="assistant-name">Ezra</div>
-              <div className="loading-indicator">Checking...</div>
-            </div>
-          )}
         </div>
         <form onSubmit={handleSubmit} className="chat-input-form">
           <input
