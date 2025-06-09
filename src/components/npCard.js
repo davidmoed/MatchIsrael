@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "../styles/components/npCard.css";
-import NPModal from "./npModal";
 
-const NpCard = ({ nonprofit }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const NpCard = ({ nonprofit, onOpenModal }) => {
   const { nonprofit_name: name, description, tags, logo } = nonprofit;
 
   const truncateText = (text, maxLength) => {
@@ -20,38 +18,30 @@ const NpCard = ({ nonprofit }) => {
   const truncatedDescription = truncateText(description, 180);
 
   return (
-    <>
-      <div className="np-card">
-        <div className="np-card-image">
-          <img src={logo} alt={name} />
-        </div>
-        <div className="np-card-content">
-          <h3 className="np-card-title">{name}</h3>
-          <div className="np-card-description-container">
-            <p className="np-card-description">{truncatedDescription}</p>
-          </div>
-          <div className="np-card-tags">
-            {tags?.map((tag, index) => (
-              <span key={index} className="np-card-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-          <button
-            className="np-card-button"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Learn More
-          </button>
-        </div>
+    <div className="np-card">
+      <div className="np-card-image">
+        <img src={logo} alt={name} />
       </div>
-
-      <NPModal
-        nonprofit={nonprofit}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </>
+      <div className="np-card-content">
+        <h3 className="np-card-title">{name}</h3>
+        <div className="np-card-description-container">
+          <p className="np-card-description">{truncatedDescription}</p>
+        </div>
+        <div className="np-card-tags">
+          {tags?.map((tag, index) => (
+            <span key={index} className="np-card-tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <button
+          className="np-card-button"
+          onClick={() => onOpenModal(nonprofit)}
+        >
+          Learn More
+        </button>
+      </div>
+    </div>
   );
 };
 

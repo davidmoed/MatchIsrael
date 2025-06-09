@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NpCard from "./npCard";
+import NPModal from "./npModal";
 import { fetchNonprofitData } from "../utils/nonprofitData";
 import "../styles/components/npCard.css";
 
@@ -7,6 +8,8 @@ const NpCardList = () => {
   const [displayedNonprofits, setDisplayedNonprofits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedNonprofit, setSelectedNonprofit] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getRandomItems = (array, count) => {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
@@ -21,6 +24,16 @@ const NpCardList = () => {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleOpenModal = (nonprofit) => {
+    setSelectedNonprofit(nonprofit);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedNonprofit(null);
+  };
 
   const renderAllNonprofitCards = () => {
     if (loading) {
@@ -42,6 +55,7 @@ const NpCardList = () => {
               imageUrl: nonprofit.logo,
               tags: [], // You might want to add tags based on some criteria
             }}
+            onOpenModal={handleOpenModal}
           />
         ))}
       </div>
@@ -52,6 +66,13 @@ const NpCardList = () => {
     <div className="np-card-list-cont">
       <h1>Featured Nonprofits</h1>
       {renderAllNonprofitCards()}
+      {selectedNonprofit && (
+        <NPModal
+          nonprofit={selectedNonprofit}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
       <div className="np-faq-section">
         <div className="np-faq">
           <h3>How are non-profits vetted?</h3>
