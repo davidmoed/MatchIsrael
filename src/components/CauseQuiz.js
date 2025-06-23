@@ -124,7 +124,7 @@ const CauseQuiz = () => {
   }, [messages]);
 
   return (
-    <section className="cause-quiz">
+    <section className="cause-quiz" id="cause-quiz">
       <h2 className="quiz-title">Find Your Perfect Cause</h2>
       <div className="quiz-container">
         <div className="chat-container" ref={chatContainerRef}>

@@ -24,9 +24,9 @@ const WhatIsMatchIsrael = () => {
           <h3>Finding Your Cause</h3>
           <p>
             Have you ever wanted to donate money to a cause in Israel but didn't
-            know where to give? Did you ever want to connect to a cause you're
-            passionate about but didn't know how? Haven't you wondered if your
-            donation is used efficiently to make an impact?
+            know where to give? Did you ever want to connect to a non-profit but
+            didn't know how? Haven't you wondered if your donation is used
+            efficiently and impactfully?
           </p>
         </div>
 
@@ -36,11 +36,13 @@ const WhatIsMatchIsrael = () => {
           </div>
           <h3>Our Solution</h3>
           <p>
-            At Match Israel, we aim to solve those problems by helping you
-            connect to small and impactful Israeli non-profits doing
-            groundbreaking work. Each of our featured non-profits have undergone
-            a rigorous vetting process and have a designated representative
-            waiting to talk with each and every one of you!
+            At Match Israel, we aim to solve those problems by helping you find
+            and connect to small and impactful Israeli non-profits doing
+            groundbreaking work. We've found great non-profits that are vetted,
+            and we've done all the research for you, compiling it into a
+            convenient database that you can access through Ezra, our handy AI
+            assistant! Plus, each of our featured non-profits have a designated
+            representative waiting to connect if you want!
           </p>
         </div>
 
@@ -50,11 +52,13 @@ const WhatIsMatchIsrael = () => {
           </div>
           <h3>How It Works</h3>
           <p>
-            Take our quiz to get recommendations on which non-profits you'll
-            find most interesting based on your preferences, or just browse
-            through the list on your own! Before you donate, you're welcome to
-            schedule a short Zoom call with the organization, and if you like
-            what you hear, go ahead and donate!
+            Talk to Ezra, our AI assistant, to get recommendations on which
+            non-profits you'll find most interesting based on your passions and
+            preferences, or just browse through the list on your own! If you see
+            something you like, go ahead and donate! And as an added bonus,
+            you're welcome to schedule a short call with the organization! You
+            can ask Ezra for the contact information, or find it on the
+            non-profits section.
           </p>
         </div>
 
@@ -64,12 +68,12 @@ const WhatIsMatchIsrael = () => {
           </div>
           <h3>Building Connections</h3>
           <p>
-            We encourage you to maintain a connection with the cause you donated
-            to—that's what the representatives are here for! Whether it's just
-            checking in every few months to see what they're up to, or visiting
-            your new friends in Israel when you come visit, we believe that a
-            connection will help you feel more satisfied with your donation, and
-            feel like you made more of an impact!
+            If you're curious and dedicated, we encourage you to build a
+            connection with a non-profit—that's what the representatives are
+            here for! Whether it's just checking in every few months to see what
+            they're up to or visiting your new friends in Israel when you come
+            visit, a connection will help you feel more satisfied with your
+            donation, and feel like you made more of an impact!
           </p>
         </div>
       </div>

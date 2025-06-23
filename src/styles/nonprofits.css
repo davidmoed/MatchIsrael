@@ -1,6 +1,6 @@
 .nonprofits-page {
   min-height: 100vh;
-  padding: 6rem 2rem 2rem; /* Extra padding at top for fixed header */
+  padding: 6rem 0 2rem;
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
@@ -16,14 +16,14 @@
 .nonprofits-page .np-card-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  box-sizing: border-box;
   gap: 2rem;
+  width: auto;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
   height: auto;
   overflow: visible;
-  flex-wrap: wrap;
-  flex: 1;
+  justify-content: center;
 }
 
 .nonprofits-page .np-card-list > div {
@@ -67,6 +67,7 @@
 @media (max-width: 600px) {
   .nonprofits-page .np-card-list {
     grid-template-columns: 1fr;
+    padding: 0 1rem;
   }
 
   .loading-state {
