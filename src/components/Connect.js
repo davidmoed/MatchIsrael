@@ -25,8 +25,9 @@ const Connect = () => {
             href="https://matchisrael.substack.com/subscribe"
             target="_blank"
             rel="noopener noreferrer"
+            className="connect-button"
           >
-            <button className="connect-button">Subscribe</button>
+            Subscribe
           </a>
         </div>
 
@@ -39,8 +40,8 @@ const Connect = () => {
             Speak directly with our team to learn more about Match Israel before
             you begin.
           </p>
-          <a href="mailto:matchisrael360@gmail.com">
-            <button className="connect-button">Book</button>
+          <a href="mailto:matchisrael360@gmail.com" className="connect-button">
+            Connect
           </a>
         </div>
       </div>
