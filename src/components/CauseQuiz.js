@@ -18,7 +18,7 @@ const CauseQuiz = () => {
     {
       role: "assistant",
       content:
-        "Hi I'm Ezra! I'm here to help you find your perfect cause to support. Do you have any types of nonprofits you'd like to hear about?",
+        "Hi I'm Ezra, and welcome to Match Israel! I'm here to help you find a great cause to support. Would you like to hear about the different types of non-profits we work with? Or perhaps you'd like to start by telling my what you're most passionate about and we can try and “Match” you with a great non-profit!",
     },
   ]);
   const [input, setInput] = useState("");
