@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import "../styles/components/connect.css";
 
 const Connect = () => {
@@ -21,19 +21,27 @@ const Connect = () => {
           <p>
             Get our newsletter with featured non-profits and impact stories.
           </p>
-          <button className="connect-button">Subscribe</button>
+          <a
+            href="https://matchisrael.substack.com/subscribe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button className="connect-button">Subscribe</button>
+          </a>
         </div>
 
         <div className="connect-option">
           <div className="connect-icon">
-            <FontAwesomeIcon icon={faCalendar} size="2x" className="fa-icon" />
+            <FontAwesomeIcon icon={faEnvelope} size="2x" className="fa-icon" />
           </div>
-          <h2>Book a Call</h2>
+          <h2>Contact Match Israel</h2>
           <p>
             Speak directly with our team to learn more about Match Israel before
             you begin.
           </p>
-          <button className="connect-button">Book</button>
+          <a href="mailto:matchisrael360@gmail.com">
+            <button className="connect-button">Book</button>
+          </a>
         </div>
       </div>
     </div>

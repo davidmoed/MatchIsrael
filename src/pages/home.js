@@ -19,9 +19,9 @@ const Home = () => {
             <span className="highlight-text-secondary"> causes in Israel</span>
           </h1>
           <div className="button-group">
-            <Link to="/nonprofits" className="btn hero-btn-primary">
+            <a href="#cause-quiz" className="btn hero-btn-primary">
               Get Connected
-            </Link>
+            </a>
             <Link to="/about" className="btn hero-btn-secondary">
               What is Match Israel?
             </Link>
