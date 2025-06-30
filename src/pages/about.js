@@ -79,7 +79,7 @@ const About = () => {
           small and vetted non-profits who are doing crucial work for Israeli
           society, both related to the events of October 7th and beyond. We
           recognized that a challenge for many smaller, non-institutional donors
-          if figuring out where to donate in the first place. With so many large
+          is figuring out where to donate in the first place. With so many large
           organizations raising tens of millions of dollars, smaller non-profits
           were left behind, especially those not connected to the war efforts,
           who continue their crucial work with less funds.
@@ -89,7 +89,7 @@ const About = () => {
           to through AI. We've done the research, found vetted non-profits, and
           built the database to make the information easy and accessible to you.
           All you have to do is have a conversation with Ezra, our AI assistant,
-          and must importantly, donate!
+          and most importantly, donate!
         </p>
         <p>
           As an added bonus, we want to give donors the opportunity to connect
