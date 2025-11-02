@@ -79,8 +79,11 @@ const NpCardList = () => {
           <p>
             Each of our featured non-profits undergoes a rigorous vetting
             process to ensure they are making a meaningful impact and using
-            donations efficiently. We evaluate their financial transparency,
-            leadership, program effectiveness, and community engagement.
+            donations efficiently. We rely on Midot, a third-party consulting
+            firm, to scrutinize their financials, leadership, effectiveness, and
+            ability to achieve their goals. Non-profits that successfully pass
+            Midot's test receive a “Seal of Effectiveness,” which is a
+            requirement to be partnered with Match Israel.
           </p>
         </div>
         <div className="np-faq">
@@ -88,7 +91,8 @@ const NpCardList = () => {
           <p>
             Yes! Each organization has a designated representative waiting to
             talk with you. You can schedule a short Zoom call to learn more
-            about their work before deciding to donate.
+            about their work before deciding to donate. On the non-profit page,
+            you can send a pre-loaded email or WhatsApp to the organization!
           </p>
         </div>
       </div>
