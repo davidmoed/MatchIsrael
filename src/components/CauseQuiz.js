@@ -78,8 +78,12 @@ const CauseQuiz = () => {
     setIsLoading(true);
     currentMessageRef.current = "";
 
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "Checking...", isPlaceholder: true },
+    ]);
+
     try {
-      // Send message to backend API
       const response = await fetch(
         `${API_BASE_URL}/.netlify/functions/chat-message`,
         {
@@ -109,12 +113,12 @@ const CauseQuiz = () => {
       // Update messages with assistant response (including error messages from backend)
       setMessages((prev) => {
         const newMessages = [...prev];
-        // Remove any temporary loading message if it exists
-        const loadingIdx = newMessages.findIndex(
-          (m) => m.role === "assistant" && m.streaming
+        // Remove the "Checking..." placeholder message if it exists
+        const placeholderIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.isPlaceholder
         );
-        if (loadingIdx !== -1) {
-          newMessages.splice(loadingIdx, 1);
+        if (placeholderIdx !== -1) {
+          newMessages.splice(placeholderIdx, 1);
         }
         // Add assistant's response (even if it's an error message, display it)
         newMessages.push({
@@ -125,11 +129,9 @@ const CauseQuiz = () => {
         return newMessages;
       });
     } catch (error) {
-      // Add user-friendly error message to messages array
       let errorMessage =
-        "I'm sorry, but I'm having trouble processing your request right now. Please try again or rephrase your question.";
+        "I'm sorry, but I'm having trouble processing your request right now. Please try again.";
 
-      // Provide more specific error messages for network issues
       if (
         error.message?.includes("fetch") ||
         error.message?.includes("network")
@@ -140,18 +142,17 @@ const CauseQuiz = () => {
         errorMessage =
           "Your request is taking longer than expected. Please try again with a shorter question.";
       } else if (error.message) {
-        // Use the error message from the backend if available
         errorMessage = error.message;
       }
 
       setMessages((prev) => {
         const newMessages = [...prev];
-        // Remove any temporary loading message if it exists
-        const loadingIdx = newMessages.findIndex(
-          (m) => m.role === "assistant" && m.streaming
+        // Remove the "Checking..." placeholder message if it exists
+        const placeholderIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.isPlaceholder
         );
-        if (loadingIdx !== -1) {
-          newMessages.splice(loadingIdx, 1);
+        if (placeholderIdx !== -1) {
+          newMessages.splice(placeholderIdx, 1);
         }
         newMessages.push({
           role: "assistant",
