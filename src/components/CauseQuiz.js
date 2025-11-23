@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import "../styles/components/CauseQuiz.css";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OAI_KEY,
-  dangerouslyAllowBrowser: true,
-});
+const getApiBaseUrl = () => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost"
+  ) {
+    return window.location.origin;
+  }
 
-const cleanResponse = (text) => {
-  // remove footnotes
-  return text.replace(/【[^】]*】/g, "");
+  return "http://localhost:3001";
 };
+
+const API_BASE_URL = getApiBaseUrl();
 
 const CauseQuiz = () => {
   const [messages, setMessages] = useState([
@@ -31,13 +33,23 @@ const CauseQuiz = () => {
   useEffect(() => {
     const initializeChat = async () => {
       try {
-        const assistant = await openai.beta.assistants.retrieve(
-          process.env.REACT_APP_ASSISTANT_ID
+        const response = await fetch(
+          `${API_BASE_URL}/.netlify/functions/chat-initialize`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
-        setAssistantId(assistant.id);
 
-        const thread = await openai.beta.threads.create();
-        setThreadId(thread.id);
+        if (!response.ok) {
+          throw new Error("Failed to initialize chat");
+        }
+
+        const data = await response.json();
+        setAssistantId(data.assistantId);
+        setThreadId(data.threadId);
       } catch (err) {
         console.error("Failed to initialize chat:", err);
         setMessages((prev) => {
@@ -57,56 +69,94 @@ const CauseQuiz = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !threadId || !assistantId) return;
+    const messageText = input.trim();
+    if (!messageText || isLoading || !threadId || !assistantId) return;
 
-    const userMessage = { role: "user", content: input };
+    const userMessage = { role: "user", content: messageText };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
     currentMessageRef.current = "";
 
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: "Checking...", isPlaceholder: true },
+    ]);
+
     try {
-      // Add message to existing thread
-      await openai.beta.threads.messages.create(threadId, {
-        role: "user",
-        content: input,
-      });
-
-      // Run the assistant
-      const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: assistantId,
-        stream: true,
-      });
-
-      // Create a temporary message for streaming
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Checking..." },
-      ]);
-
-      // Handle the stream
-      for await (const chunk of run) {
-        if (chunk.event === "thread.message.delta") {
-          const content = chunk.data.delta.content?.[0]?.text?.value || "";
-          if (content) {
-            currentMessageRef.current += content;
-            setMessages((prev) => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              lastMessage.content = cleanResponse(currentMessageRef.current);
-              return newMessages;
-            });
-          }
+      const response = await fetch(
+        `${API_BASE_URL}/.netlify/functions/chat-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            threadId,
+            assistantId,
+            message: messageText,
+          }),
         }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message ||
+            "I'm having trouble connecting. Please try again."
+        );
       }
-    } catch (error) {
-      console.error("Error:", error);
+
+      // Handle non-streaming JSON response
+      const data = await response.json();
+
+      // Update messages with assistant response (including error messages from backend)
       setMessages((prev) => {
         const newMessages = [...prev];
+        // Remove the "Checking..." placeholder message if it exists
+        const placeholderIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.isPlaceholder
+        );
+        if (placeholderIdx !== -1) {
+          newMessages.splice(placeholderIdx, 1);
+        }
+        // Add assistant's response (even if it's an error message, display it)
         newMessages.push({
           role: "assistant",
           content:
-            "I encountered an error while processing your request. Please try again or rephrase your question.",
+            data.content || "I'm sorry, I couldn't process that request.",
+        });
+        return newMessages;
+      });
+    } catch (error) {
+      let errorMessage =
+        "I'm sorry, but I'm having trouble processing your request right now. Please try again.";
+
+      if (
+        error.message?.includes("fetch") ||
+        error.message?.includes("network")
+      ) {
+        errorMessage =
+          "I'm having trouble connecting to the server. Please check your internet connection and try again.";
+      } else if (error.message?.includes("timeout")) {
+        errorMessage =
+          "Your request is taking longer than expected. Please try again with a shorter question.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        // Remove the "Checking..." placeholder message if it exists
+        const placeholderIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.isPlaceholder
+        );
+        if (placeholderIdx !== -1) {
+          newMessages.splice(placeholderIdx, 1);
+        }
+        newMessages.push({
+          role: "assistant",
+          content: errorMessage,
         });
         return newMessages;
       });
