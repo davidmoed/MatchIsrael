@@ -1,17 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import "../styles/components/CauseQuiz.css";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OAI_KEY,
-  dangerouslyAllowBrowser: true,
-});
-
-const cleanResponse = (text) => {
-  // remove footnotes
-  return text.replace(/【[^】]*】/g, "");
-};
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const CauseQuiz = () => {
   const [messages, setMessages] = useState([
@@ -31,13 +22,23 @@ const CauseQuiz = () => {
   useEffect(() => {
     const initializeChat = async () => {
       try {
-        const assistant = await openai.beta.assistants.retrieve(
-          process.env.REACT_APP_ASSISTANT_ID
+        const response = await fetch(
+          `${API_BASE_URL}/.netlify/functions/initialize`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
-        setAssistantId(assistant.id);
 
-        const thread = await openai.beta.threads.create();
-        setThreadId(thread.id);
+        if (!response.ok) {
+          throw new Error("Failed to initialize chat");
+        }
+
+        const data = await response.json();
+        setAssistantId(data.assistantId);
+        setThreadId(data.threadId);
       } catch (err) {
         console.error("Failed to initialize chat:", err);
         setMessages((prev) => {
@@ -57,50 +58,97 @@ const CauseQuiz = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !threadId || !assistantId) return;
+    const messageText = input.trim();
+    if (!messageText || isLoading || !threadId || !assistantId) return;
 
-    const userMessage = { role: "user", content: input };
+    const userMessage = { role: "user", content: messageText };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
     currentMessageRef.current = "";
 
     try {
-      // Add message to existing thread
-      await openai.beta.threads.messages.create(threadId, {
-        role: "user",
-        content: input,
-      });
-
-      // Run the assistant
-      const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: assistantId,
-        stream: true,
-      });
-
       // Create a temporary message for streaming
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Checking..." },
+        { role: "assistant", content: "Checking...", streaming: true },
       ]);
 
-      // Handle the stream
-      for await (const chunk of run) {
-        if (chunk.event === "thread.message.delta") {
-          const content = chunk.data.delta.content?.[0]?.text?.value || "";
-          if (content) {
-            currentMessageRef.current += content;
-            setMessages((prev) => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              lastMessage.content = cleanResponse(currentMessageRef.current);
-              return newMessages;
-            });
+      // Send message to backend API
+      const response = await fetch(
+        `${API_BASE_URL}.netlify/functions/message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            threadId,
+            assistantId,
+            message: messageText,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      // Handle Server-Sent Events stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) {
+                streamDone = true;
+                break;
+              }
+              if (data.error) {
+                throw new Error(data.error);
+              }
+              if (data.content) {
+                currentMessageRef.current += data.content;
+                // In your streaming update loop
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  // Find the assistant message with 'streaming: true'
+                  const idx = newMessages.findIndex(
+                    (m) => m.role === "assistant" && m.streaming
+                  );
+                  if (idx !== -1) {
+                    newMessages[idx] = {
+                      ...newMessages[idx],
+                      content: currentMessageRef.current,
+                      streaming: true,
+                    };
+                  }
+                  return newMessages;
+                });
+              }
+            } catch (e) {
+              // Skip invalid JSON or handle errors
+              if (
+                e instanceof Error &&
+                e.message !== "Unexpected end of JSON input"
+              ) {
+                throw e;
+              }
+            }
           }
         }
       }
     } catch (error) {
-      console.error("Error:", error);
       setMessages((prev) => {
         const newMessages = [...prev];
         newMessages.push({

@@ -9,7 +9,10 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "cors": "^2.8.5",
     "csv-parse": "^5.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "openai": "^4.96.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -23,7 +26,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node netlify/index.js",
+    "server:dev": "nodemon netlify/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   },
   "eslintConfig": {
     "extends": [
