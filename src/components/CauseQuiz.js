@@ -2,7 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import "../styles/components/CauseQuiz.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+const getApiBaseUrl = () => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost"
+  ) {
+    return window.location.origin;
+  }
+
+  return "http://localhost:3001";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const CauseQuiz = () => {
   const [messages, setMessages] = useState([
@@ -76,7 +87,7 @@ const CauseQuiz = () => {
 
       // Send message to backend API
       const response = await fetch(
-        `${API_BASE_URL}.netlify/functions/message`,
+        `${API_BASE_URL}/.netlify/functions/message`,
         {
           method: "POST",
           headers: {
