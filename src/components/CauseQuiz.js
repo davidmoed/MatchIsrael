@@ -79,12 +79,6 @@ const CauseQuiz = () => {
     currentMessageRef.current = "";
 
     try {
-      // Create a temporary message for streaming
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Checking...", streaming: true },
-      ]);
-
       // Send message to backend API
       const response = await fetch(
         `${API_BASE_URL}/.netlify/functions/chat-message`,
@@ -102,70 +96,66 @@ const CauseQuiz = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to send message");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message ||
+            "I'm having trouble connecting. Please try again."
+        );
       }
 
-      // Handle Server-Sent Events stream
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let streamDone = false;
+      // Handle non-streaming JSON response
+      const data = await response.json();
 
-      while (!streamDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.done) {
-                streamDone = true;
-                break;
-              }
-              if (data.error) {
-                throw new Error(data.error);
-              }
-              if (data.content) {
-                currentMessageRef.current += data.content;
-                // In your streaming update loop
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  // Find the assistant message with 'streaming: true'
-                  const idx = newMessages.findIndex(
-                    (m) => m.role === "assistant" && m.streaming
-                  );
-                  if (idx !== -1) {
-                    newMessages[idx] = {
-                      ...newMessages[idx],
-                      content: currentMessageRef.current,
-                      streaming: true,
-                    };
-                  }
-                  return newMessages;
-                });
-              }
-            } catch (e) {
-              // Skip invalid JSON or handle errors
-              if (
-                e instanceof Error &&
-                e.message !== "Unexpected end of JSON input"
-              ) {
-                throw e;
-              }
-            }
-          }
-        }
-      }
-    } catch (error) {
+      // Update messages with assistant response (including error messages from backend)
       setMessages((prev) => {
         const newMessages = [...prev];
+        // Remove any temporary loading message if it exists
+        const loadingIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.streaming
+        );
+        if (loadingIdx !== -1) {
+          newMessages.splice(loadingIdx, 1);
+        }
+        // Add assistant's response (even if it's an error message, display it)
         newMessages.push({
           role: "assistant",
           content:
-            "I encountered an error while processing your request. Please try again or rephrase your question.",
+            data.content || "I'm sorry, I couldn't process that request.",
+        });
+        return newMessages;
+      });
+    } catch (error) {
+      // Add user-friendly error message to messages array
+      let errorMessage =
+        "I'm sorry, but I'm having trouble processing your request right now. Please try again or rephrase your question.";
+
+      // Provide more specific error messages for network issues
+      if (
+        error.message?.includes("fetch") ||
+        error.message?.includes("network")
+      ) {
+        errorMessage =
+          "I'm having trouble connecting to the server. Please check your internet connection and try again.";
+      } else if (error.message?.includes("timeout")) {
+        errorMessage =
+          "Your request is taking longer than expected. Please try again with a shorter question.";
+      } else if (error.message) {
+        // Use the error message from the backend if available
+        errorMessage = error.message;
+      }
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        // Remove any temporary loading message if it exists
+        const loadingIdx = newMessages.findIndex(
+          (m) => m.role === "assistant" && m.streaming
+        );
+        if (loadingIdx !== -1) {
+          newMessages.splice(loadingIdx, 1);
+        }
+        newMessages.push({
+          role: "assistant",
+          content: errorMessage,
         });
         return newMessages;
       });

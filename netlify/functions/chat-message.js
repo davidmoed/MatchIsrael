@@ -6,8 +6,6 @@ const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OAI_KEY,
 });
 
-const { TextEncoder } = require("util");
-const encoder = new TextEncoder();
 const cleanResponse = (text) => text.replace(/【[^】]*】/g, "");
 
 exports.handler = async (event) => {
@@ -48,63 +46,53 @@ exports.handler = async (event) => {
       content: message,
     });
 
-    const stream = await openai.beta.threads.runs.create(threadId, {
+    // Create run without streaming
+    const run = await openai.beta.threads.runs.create(threadId, {
       assistant_id: assistantId,
-      stream: true,
     });
 
-    const bodyStream = new ReadableStream({
-      async start(controller) {
-        const iterator = stream.iterator();
+    // Wait for run to complete using OpenAI's recommended polling pattern
+    let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    while (
+      runStatus.status === "queued" ||
+      runStatus.status === "in_progress" ||
+      runStatus.status === "requires_action"
+    ) {
+      runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    }
 
-        async function pushChunk() {
-          try {
-            const { value: chunk, done } = await iterator.next();
-            if (done) {
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
-              );
-              controller.close();
-              return;
-            }
-            if (chunk.event === "thread.message.delta") {
-              const content = chunk.data.delta.content?.[0]?.text?.value || "";
-              if (content) {
-                controller.enqueue(
-                  encoder.encode(
-                    `data: ${JSON.stringify({
-                      content: cleanResponse(content),
-                    })}\n\n`
-                  )
-                );
-              }
-            }
-            pushChunk();
-          } catch (err) {
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ error: err.message })}\n\n`
-              )
-            );
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
-            );
-            controller.close();
-          }
-        }
-        pushChunk();
-      },
+    if (runStatus.status === "failed") {
+      throw new Error(runStatus.last_error?.message || "Run failed");
+    }
+
+    if (runStatus.status === "cancelled") {
+      throw new Error("Run was cancelled");
+    }
+
+    // Retrieve the assistant's response - get the latest assistant message
+    const messages = await openai.beta.threads.messages.list(threadId, {
+      order: "desc",
     });
 
-    return new Response(bodyStream, {
-      status: 200,
+    const assistantMessage = messages.data.find(
+      (msg) => msg.role === "assistant" && msg.run_id === run.id
+    );
+    const content =
+      assistantMessage?.content[0]?.type === "text"
+        ? assistantMessage.content[0].text.value
+        : "";
+
+    // Return complete response
+    return {
+      statusCode: 200,
       headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
+        "Content-Type": "application/json",
       },
-    });
+      body: JSON.stringify({
+        content: cleanResponse(content),
+        done: true,
+      }),
+    };
   } catch (error) {
     return {
       statusCode: 500,
