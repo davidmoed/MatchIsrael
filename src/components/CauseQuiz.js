@@ -34,7 +34,7 @@ const CauseQuiz = () => {
     const initializeChat = async () => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/.netlify/functions/initialize`,
+          `${API_BASE_URL}/.netlify/functions/chat-initialize`,
           {
             method: "POST",
             headers: {
@@ -87,7 +87,7 @@ const CauseQuiz = () => {
 
       // Send message to backend API
       const response = await fetch(
-        `${API_BASE_URL}/.netlify/functions/message`,
+        `${API_BASE_URL}/.netlify/functions/chat-message`,
         {
           method: "POST",
           headers: {
